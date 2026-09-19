@@ -1,89 +1,333 @@
 <div align="center">
 
-# 한승훈 | RTL Design & Verification Engineer
+# Han SeungHun
 
-**RTL을 설계하고, Simulation·Coverage·FPGA Validation으로 동작을 증명하는 엔지니어를 목표로 합니다.**
+### RTL Design & Verification Engineer
 
-`SystemVerilog` · `UVM` · `Verilog HDL` · `AXI4-Lite` · `Zynq / FPGA`
+**RTL을 설계하고, Simulation · Coverage · FPGA Validation으로 동작을 증명합니다.**
 
-[Portfolio](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a) · [Email](mailto:hsgn21@naver.com)
+<br>
+
+<img src="https://img.shields.io/badge/SystemVerilog-RTL-4A4A4A?style=for-the-badge">
+<img src="https://img.shields.io/badge/UVM-Verification-2E8B57?style=for-the-badge">
+<img src="https://img.shields.io/badge/AXI4--Lite-SoC-D97706?style=for-the-badge">
+<img src="https://img.shields.io/badge/FPGA-Zynq-2563EB?style=for-the-badge">
+
+<br><br>
+
+[**Portfolio**](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a)
+&nbsp;&nbsp;•&nbsp;&nbsp;
+[**GitHub**](https://github.com/realisshoon)
+&nbsp;&nbsp;•&nbsp;&nbsp;
+[**Email**](mailto:hsgn21@naver.com)
 
 </div>
 
 ---
 
-## About Me
+## 👋 About Me
 
-온디바이스 AI 시스템반도체 설계 과정에서 **RTL 설계부터 SystemVerilog/UVM 검증, SoC 통합, FPGA 구현**까지 경험했습니다.
+- **RTL Design · Verification · SoC Integration · FPGA Implementation**을 경험하고 있습니다.
+- DUT와 Protocol을 이해한 뒤 **Test Scenario → Scoreboard → Coverage → Waveform Debug**로 동작을 검증합니다.
+- 현재는 **Zynq 기반 INT8 CNN Accelerator RTL 설계 및 검증**을 진행하고 있습니다.
 
-설계와 검증을 분리해서 보지 않고, **DUT 구조와 프로토콜을 이해한 뒤 Test Scenario·Scoreboard·Coverage·Waveform으로 동작을 확인하는 과정**에 집중하고 있습니다.
+> **Target**  
+> RTL Verification Engineer / RTL · SoC Design Engineer
 
-- **Target**: RTL Verification Engineer / RTL·SoC Design Engineer
-- **Verification**: UVM, SystemVerilog OOP, Directed/Random Test, Scoreboard, Functional Coverage
-- **RTL / SoC**: AXI4-Lite, MMIO, FSM, SPI, I2C, UART, FIFO, RISC-V, CNN Accelerator
-- **Implementation**: Vivado, Vitis, VCS, Verdi, Basys3, Zybo Z7-20
-- **Work Style**: 명세·코드·파형·수치 결과를 기준으로 구현 범위와 검증 결과를 구분해 기록합니다.
+---
 
-## Verification Flow
+# 🚀 Current Project
 
-`Spec / DUT 이해` → `Test Scenario` → `Self-checking Testbench` → `Scoreboard / Coverage` → `Waveform Debugging` → `FPGA Validation`
+## Zynq CNN Motion Robot SoC
 
-## Current Project
+[![Repository](https://img.shields.io/badge/GitHub-View_Repository-181717?style=flat-square&logo=github)](https://github.com/realisshoon/zynq-cnn-motion-robot-soc)
+![Status](https://img.shields.io/badge/Status-In_Progress-F59E0B?style=flat-square)
 
-### [Zynq CNN Motion Robot SoC](https://github.com/realisshoon/zynq-cnn-motion-robot-soc) — In Progress
+**카메라에서 사람의 움직임을 인식하고 FPGA CNN Accelerator에서 처리한 Human Motion Data로 실제·가상 로봇팔을 제어하는 시스템입니다.**
 
-Zybo Z7-20 기반으로 **카메라 입력 → CNN Accelerator → Human Motion Data → Robot Arm / Virtual Arm**까지 연결하는 HW/SW 통합 프로젝트를 진행하고 있습니다.
+```mermaid
+flowchart LR
+    A[Camera] --> B[MIPI CSI / Video Pipeline]
+    B --> C[DDR Frame Buffer]
+    C --> D[INT8 CNN Accelerator]
+    D --> E[Pose / Coordinate]
+    E --> F[Human Motion Data]
+    F --> G[Robot Arm]
+    F --> H[Virtual Arm]
+```
 
-- **My Focus**: CNN Accelerator RTL, Golden Model 기반 수치 검증, CNN subsystem integration
-- **Architecture**: INT8 CNN datapath, line buffer, depthwise/pointwise convolution, requantization, postprocess
-- **Verification**: Python Golden Model → directed vector → RTL simulation → bit-exact comparison
-- **Integration**: Zynq PS/PL, AXI/DDR data path, camera frame processing 및 robot control interface
-- **Status**: CNN 연산 블록과 control/dataflow를 단계적으로 구현·검증 중
+### My Focus
 
-> 진행 중인 프로젝트이므로 완료된 기능과 검증 결과만 저장소에 순차적으로 반영하고 있습니다.
+`CNN Accelerator RTL`
+&nbsp; `Golden Model Verification`
+&nbsp; `INT8 Datapath`
+&nbsp; `System Integration`
 
-## Featured Projects
+| Module | Status | Verification |
+|---|:---:|---|
+| **Postprocess** | ✅ | Python Golden Model ↔ RTL Bit-exact |
+| **Depthwise Conv PE** | ✅ | Directed Vector / RTL Simulation |
+| **Pointwise Conv PE** | 🛠 | RTL / Verification 진행 |
+| **CNN Top / Dataflow** | 🛠 | Integration 진행 |
+| **Zynq System Integration** | 🛠 | PS/PL · AXI/DDR 연동 진행 |
 
-| Project | What I Built | Verification / Result |
+### Verification Strategy
+
+```mermaid
+flowchart LR
+    A[Python<br>Golden Model]
+    --> B[Test Vector]
+    --> C[RTL Simulation]
+    --> D[Bit-exact Compare]
+    --> E[Waveform Debug]
+```
+
+> 진행 중인 프로젝트로, **구현·검증이 완료된 기능과 진행 중인 기능을 구분하여 기록**하고 있습니다.
+
+---
+
+# ⭐ Featured Projects
+
+<table>
+<tr>
+
+<td width="50%" valign="top">
+
+### 🎥 FPGA VGA Conductor Game
+
+<a href="https://github.com/realisshoon/fpga-vga-conductor-game">
+<img src="https://raw.githubusercontent.com/realisshoon/fpga-vga-conductor-game/main/docs/images/demo-pattern-playing.jpg" width="100%">
+</a>
+
+<br>
+
+`SystemVerilog` `UVM` `OV7670` `UART`
+
+**OV7670 → RGB Detect → Pattern FSM → BPM/Volume → PC UI**
+
+- RGB Filter / Coordinate Detect Integration
+- Top RTL Integration
+- RGB Detect UVM
+- FPGA ↔ PC UART Integration
+
+<br>
+
+[**→ View Repository**](https://github.com/realisshoon/fpga-vga-conductor-game)
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🔗 AXI4-Lite Multi-Peripheral SoC
+
+<a href="https://github.com/realisshoon/axi4-lite-multi-peripheral-soc">
+<img src="https://raw.githubusercontent.com/realisshoon/axi4-lite-multi-peripheral-soc/main/docs/assets/slide-3.png" width="100%">
+</a>
+
+<br>
+
+`AXI4-Lite` `MicroBlaze` `UVM` `MMIO`
+
+**MicroBlaze + AXI Interconnect + Custom Peripheral**
+
+- UART · Timer · I2C · SPI Integration
+- AXI4-Lite Register / MMIO
+- Vitis HW/SW Integration
+- Basys3 FPGA Validation
+
+**UVM : 32 Pass / 0 Fail · Coverage 100%**
+
+<br>
+
+[**→ View Repository**](https://github.com/realisshoon/axi4-lite-multi-peripheral-soc)
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" valign="top">
+
+### 🧪 SPI / I2C RTL & UVM
+
+<a href="https://github.com/realisshoon/spi_i2c_uvm">
+<img src="https://raw.githubusercontent.com/realisshoon/spi_i2c_uvm/main/docs/assets/slide-7.png" width="100%">
+</a>
+
+<br>
+
+`SystemVerilog` `UVM` `SPI` `I2C`
+
+**Peripheral RTL → UVM → FPGA Board Validation**
+
+- SPI Master / Slave RTL
+- UVM Driver · Monitor · Scoreboard
+- Functional Coverage
+- Board-to-Board Communication
+
+**SPI : 48 Pass / 0 Fail**  
+**I2C : 14 Pass / 0 Fail · Coverage 100%** *(Team Result)*
+
+<br>
+
+[**→ View Repository**](https://github.com/realisshoon/spi_i2c_uvm)
+
+</td>
+
+<td width="50%" valign="top">
+
+### 🧠 RV32I Single-Cycle CPU
+
+<a href="https://github.com/realisshoon/RV32i-CPU">
+<img src="https://raw.githubusercontent.com/realisshoon/RV32i-CPU/main/docs/assets/architecture.png" width="100%">
+</a>
+
+<br>
+
+`SystemVerilog` `RISC-V` `RTL` `Vivado`
+
+**Instruction Fetch → Decode → Execute → Memory → Write-back**
+
+- Datapath
+- Control Unit
+- Register File
+- ALU / Memory Interface
+- Branch / JAL / JALR
+
+**Bubble Sort Program Simulation 검증**
+
+<br>
+
+[**→ View Repository**](https://github.com/realisshoon/RV32i-CPU)
+
+</td>
+
+</tr>
+</table>
+
+---
+
+# 🔍 Verification Workflow
+
+```mermaid
+flowchart LR
+    A["SPEC / DUT<br>Understanding"]
+    --> B["Test<br>Scenario"]
+    --> C["Self-checking<br>Testbench"]
+    --> D["Scoreboard"]
+    --> E["Functional<br>Coverage"]
+    --> F["Waveform<br>Debug"]
+    --> G["FPGA<br>Validation"]
+```
+
+### What I Verify
+
+`Protocol Timing`
+&nbsp; `Handshake`
+&nbsp; `FSM Transition`
+&nbsp; `Corner Case`
+&nbsp; `Data Integrity`
+&nbsp; `Coverage`
+
+---
+
+# 🧩 Additional RTL / Verification Projects
+
+| Project | Core | Result |
 |---|---|---|
-| **[FPGA VGA Conductor Game](https://github.com/realisshoon/fpga-vga-conductor-game)** | OV7670 영상에서 색상·좌표를 추출하고 FPGA에서 4박 패턴·BPM·음량·점수를 계산해 PC UI/MIDI와 연동 | RGB Detect UVM, module-level TB, FPGA-PC 통합 시연 |
-| **[AXI4-Lite Multi-Peripheral SoC](https://github.com/realisshoon/axi4-lite-multi-peripheral-soc)** | MicroBlaze와 UART·Timer·I2C·SPI IP를 MMIO로 통합한 개인 SoC 프로젝트 | AXI-SPI UVM **32 Pass / 0 Fail**, Functional Coverage **100%** |
-| **[SPI / I2C RTL & UVM Verification](https://github.com/realisshoon/spi_i2c_uvm)** | SPI Master/Slave RTL 설계, SPI/I2C UVM 환경 및 FPGA 통신 검증 | SPI **48 Pass / 0 Fail**, I2C **14 Pass / 0 Fail**, I2C Coverage **100%** *(team result)* |
-| **[RV32I Single-Cycle CPU](https://github.com/realisshoon/RV32i-CPU)** | RV32I Datapath·Control Unit·Memory Interface 구현 | Instruction-level simulation 및 Bubble Sort 동작 확인 |
+| [**UART / FIFO OOP Verification**](https://github.com/realisshoon/UART_OOP_Verification) | SystemVerilog OOP · Scoreboard | UART/FIFO Unit + Integration Test |
+| [**UART / FIFO / Sensor FPGA System**](https://github.com/realisshoon/UART_FIFO_SENSOR_CLOCK) | UART · FIFO · SR04 · DHT11 | WNS **0.606 ns**, WHS **0.094 ns** |
+| [**Stopwatch / Watch RTL**](https://github.com/realisshoon/STOPWATCH-WATCH_Verilog-HDL) | FSM · Datapath · FPGA | Basys3 Implementation |
+| [**Jetson Multi-Camera Tracking**](https://github.com/realisshoon/jetson-multicam-re_id-tracking) | Jetson · MQTT · DB | 4-board System Integration |
 
-## Additional Verification / RTL Projects
+---
 
-- **[SystemVerilog UART / FIFO Verification](https://github.com/realisshoon/UART_OOP_Verification)**  
-  Transaction·Generator·Driver·Monitor·Scoreboard 기반 self-checking 환경 구성  
-  UART/FIFO Unit Test 및 UART RX–FIFO Integration Test 수행
+# 🛠 Tech Stack
 
-- **[UART / FIFO / Sensor FPGA System](https://github.com/realisshoon/UART_FIFO_SENSOR_CLOCK)**  
-  SR04·DHT11 Controller/Datapath, Watch/Stopwatch, 2-stage synchronizer 구현  
-  `WNS 0.606 ns` · `WHS 0.094 ns` · `LUT 3.71%` · `FF 1.07%`
+### HDL / Verification
 
-- **[Stopwatch / Watch RTL](https://github.com/realisshoon/STOPWATCH-WATCH_Verilog-HDL)**  
-  FSM, Control Unit, FND MUX/Decoder 및 Basys3 FPGA 통합
+![Verilog](https://img.shields.io/badge/Verilog-RTL-4A4A4A?style=flat-square)
+![SystemVerilog](https://img.shields.io/badge/SystemVerilog-Verification-2563EB?style=flat-square)
+![UVM](https://img.shields.io/badge/UVM-1.2-2E8B57?style=flat-square)
 
-## System Integration Experience
+### SoC / Protocol
 
-- **[Jetson Multi-Camera Tracking & Re-ID](https://github.com/realisshoon/jetson-multicam-re_id-tracking)**  
-  4대 Jetson 보드, MQTT, 중앙 서버·DB를 통합해 인물 이동 경로와 재방문 판정을 구현한 팀 프로젝트  
-  중앙 서버·DB 구조, 보드 간 메시지 흐름 및 통합 검증 담당
+![AXI4-Lite](https://img.shields.io/badge/AXI4--Lite-SoC-D97706?style=flat-square)
+![SPI](https://img.shields.io/badge/SPI-Protocol-6B7280?style=flat-square)
+![I2C](https://img.shields.io/badge/I2C-Protocol-6B7280?style=flat-square)
+![UART](https://img.shields.io/badge/UART-Protocol-6B7280?style=flat-square)
+![MMIO](https://img.shields.io/badge/MMIO-Register_Interface-6B7280?style=flat-square)
 
-## Tech Stack
+### Architecture
 
-| Area | Stack |
-|---|---|
-| **HDL / Verification** | Verilog HDL, SystemVerilog, UVM |
-| **Bus / Protocol** | AXI4-Lite, MMIO, SPI, I2C, UART |
-| **Architecture** | FSM, FIFO, CDC Synchronizer, RISC-V RV32I, INT8 CNN Accelerator |
-| **Tools / Board** | Vivado, Vitis, VCS, Verdi, Basys3, Zybo Z7-20 |
-| **Programming** | C, Python, Linux |
-| **Integration** | FPGA–PC UART, Zynq PS/PL, MQTT, Database |
+![FSM](https://img.shields.io/badge/FSM-Control-7C3AED?style=flat-square)
+![FIFO](https://img.shields.io/badge/FIFO-Buffer-7C3AED?style=flat-square)
+![RISC-V](https://img.shields.io/badge/RISC--V-RV32I-7C3AED?style=flat-square)
+![CNN](https://img.shields.io/badge/CNN-INT8_Accelerator-7C3AED?style=flat-square)
 
-## Current Focus
+### FPGA / Tools
 
-- Zynq 기반 INT8 CNN Accelerator의 RTL datapath/control 구조 구현
-- Python Golden Model과 RTL simulation 간 bit-exact 검증
-- 재사용 가능한 UVM component와 coverage-driven verification 역량 강화
-- AXI/DDR 기반 IP integration 및 HW/SW register-level validation 심화
+![Vivado](https://img.shields.io/badge/Vivado-FPGA-E01F27?style=flat-square)
+![Vitis](https://img.shields.io/badge/Vitis-Embedded-E01F27?style=flat-square)
+![VCS](https://img.shields.io/badge/VCS-Simulation-8B5CF6?style=flat-square)
+![Verdi](https://img.shields.io/badge/Verdi-Debug-8B5CF6?style=flat-square)
+![Basys3](https://img.shields.io/badge/Basys3-Artix--7-0F766E?style=flat-square)
+![Zybo](https://img.shields.io/badge/Zybo_Z7--20-Zynq--7000-0F766E?style=flat-square)
+
+### Programming
+
+![Python](https://img.shields.io/badge/Python-Development-3776AB?style=flat-square)
+![C](https://img.shields.io/badge/C-Embedded-555555?style=flat-square)
+![Linux](https://img.shields.io/badge/Linux-Development-FCC624?style=flat-square)
+
+---
+
+# 🎯 Current Focus
+
+<table>
+<tr>
+<td>🧠 <b>INT8 CNN Accelerator</b></td>
+<td>RTL Datapath / Control Architecture</td>
+</tr>
+
+<tr>
+<td>🔬 <b>Bit-exact Verification</b></td>
+<td>Python Golden Model ↔ RTL Simulation</td>
+</tr>
+
+<tr>
+<td>🧪 <b>UVM Verification</b></td>
+<td>Scoreboard / Coverage / Corner Case</td>
+</tr>
+
+<tr>
+<td>🔗 <b>SoC Integration</b></td>
+<td>AXI / DDR / PS-PL Integration</td>
+</tr>
+
+<tr>
+<td>⏱ <b>FPGA Implementation</b></td>
+<td>Timing / Resource / Critical Path</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+### 📫 Contact
+
+**Han SeungHun**
+
+[Portfolio](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a)
+&nbsp; · &nbsp;
+[GitHub](https://github.com/realisshoon)
+&nbsp; · &nbsp;
+[Email](mailto:hsgn21@naver.com)
+
+<br>
+
+**RTL Design · Verification · SoC Integration · FPGA**
+
+</div>
