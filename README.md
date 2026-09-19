@@ -1,12 +1,18 @@
-<div align="center">
+<table>
+<tr>
+<td width="170" align="center" valign="middle">
+
+<img src="./assets/profile.png" width="145">
+
+</td>
+
+<td valign="middle">
 
 # Han SeungHun
 
 ### RTL Design & Verification Engineer
 
 **RTL을 설계하고, Simulation · Coverage · FPGA Validation으로 동작을 증명합니다.**
-
-<br>
 
 <img src="https://img.shields.io/badge/SystemVerilog-RTL-4A4A4A?style=for-the-badge">
 <img src="https://img.shields.io/badge/UVM-Verification-2E8B57?style=for-the-badge">
@@ -16,12 +22,14 @@
 <br><br>
 
 [**Portfolio**](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a)
-&nbsp;&nbsp;•&nbsp;&nbsp;
+&nbsp;•&nbsp;
 [**GitHub**](https://github.com/realisshoon)
-&nbsp;&nbsp;•&nbsp;&nbsp;
+&nbsp;•&nbsp;
 [**Email**](mailto:hsgn21@naver.com)
 
-</div>
+</td>
+</tr>
+</table>
 
 ---
 
