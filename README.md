@@ -67,22 +67,26 @@ flowchart LR
 |---|:---:|---|
 | **Postprocess** | ✅ | Python Golden Model ↔ RTL Bit-exact |
 | **Depthwise Conv PE** | ✅ | Directed Vector / RTL Simulation |
-| **Pointwise Conv PE** | 🛠 | RTL / Verification 진행 |
+| **Pointwise Conv PE** | ✅ | RTL Regression / Review-ready |
 | **CNN Top / Dataflow** | 🛠 | Integration 진행 |
 | **Zynq System Integration** | 🛠 | PS/PL · AXI/DDR 연동 진행 |
 
-### Verification Strategy
+### Engineering Approach
 
 ```mermaid
 flowchart LR
-    A[Python<br>Golden Model]
-    --> B[Test Vector]
-    --> C[RTL Simulation]
-    --> D[Bit-exact Compare]
-    --> E[Waveform Debug]
+    A[Spec / Golden Model]
+    --> B[RTL Implementation]
+    --> C[Directed Vector]
+    --> D[RTL Simulation]
+    --> E[Bit-exact Compare]
+    --> F[Waveform Debug]
 ```
 
-> 진행 중인 프로젝트로, **구현·검증이 완료된 기능과 진행 중인 기능을 구분하여 기록**하고 있습니다.
+> CNN 연산은 Python Golden Model을 기준으로 비교하며,  
+> **단순히 동작 여부만 확인하지 않고 정수 연산 결과가 기준 모델과 일치하는지 검증**하고 있습니다.
+
+> 현재 진행 중인 프로젝트로, **완료된 기능과 진행 중인 기능을 구분하여 기록**하고 있습니다.
 
 ---
 
@@ -105,10 +109,11 @@ flowchart LR
 
 **OV7670 → RGB Detect → Pattern FSM → BPM/Volume → PC UI**
 
-- RGB Filter / Coordinate Detect Integration
-- Top RTL Integration
+**My Role**
+- RGB Filter · Coordinate Detection Integration
+- Top RTL · FPGA-PC Integration
 - RGB Detect UVM
-- FPGA ↔ PC UART Integration
+- Repository / Branch Integration
 
 <br>
 
@@ -135,7 +140,7 @@ flowchart LR
 - Vitis HW/SW Integration
 - Basys3 FPGA Validation
 
-**UVM : 32 Pass / 0 Fail · Coverage 100%**
+**32 Pass / 0 Fail · Functional Coverage 100%**
 
 <br>
 
@@ -161,10 +166,11 @@ flowchart LR
 
 **Peripheral RTL → UVM → FPGA Board Validation**
 
+**My Role**
 - SPI Master / Slave RTL
-- UVM Driver · Monitor · Scoreboard
-- Functional Coverage
-- Board-to-Board Communication
+- SPI Full-Duplex 검증
+- Waveform Debug
+- FPGA Board Validation
 
 **SPI : 48 Pass / 0 Fail**  
 **I2C : 14 Pass / 0 Fail · Coverage 100%** *(Team Result)*
@@ -187,7 +193,7 @@ flowchart LR
 
 `SystemVerilog` `RISC-V` `RTL` `Vivado`
 
-**Instruction Fetch → Decode → Execute → Memory → Write-back**
+**Fetch → Decode → Execute → Memory → Write-back**
 
 - Datapath
 - Control Unit
@@ -205,6 +211,86 @@ flowchart LR
 
 </tr>
 </table>
+
+---
+
+# 🛠 Troubleshooting & Debugging
+
+> 결과만 기록하지 않고, **문제 발견 → 원인 분석 → 수정 → 재검증** 과정을 중요하게 생각합니다.
+
+| Case | How I Found It | Root Cause / Action | Result |
+|---|---|---|---|
+| **⏱ Setup Timing Violation** | Vivado Implementation의 Timing Report에서 Setup Slack 문제 확인 | Worst Path에서 `60000 / count_reg` Divider 경로 확인 → FSM의 데이터 유효 시점을 분석해 Multicycle Path 적용 | Setup/Hold Constraint 적용 후 Timing 재확인 |
+| **🧪 I2C Coverage Hole** | Functional Coverage **85.71%**, ACK/NACK bin **0%** 확인 | Waveform에서 ACK Sampling 시점 오류 확인 → 9번째 SCL High 기준으로 Driver 수정 | **14 Pass / 0 Fail · Coverage 100%** |
+| **🔄 UART/FIFO Event Loss** | 통합 동작에서 일부 Control Event 누락을 Waveform으로 추적 | FIFO 상태와 1-cycle Pulse의 생성·소비 시점 불일치 확인 → Pulse Timing 조정 | UART/FIFO 통합 동작 재검증 |
+
+<details>
+<summary><b>🔎 Case Study — Setup Timing Violation 상세 보기</b></summary>
+
+<br>
+
+### 1. Problem
+
+Functional Simulation에서는 정상적으로 동작했지만,  
+Vivado Implementation 이후 Timing Report에서  
+**BPM 계산 경로의 Setup Timing 문제**를 확인했습니다.
+
+### 2. Analysis
+
+Worst Timing Path를 추적한 결과,  
+지휘 간격을 BPM으로 변환하는 다음 나눗셈 연산이  
+긴 Combinational Path를 형성하고 있음을 확인했습니다.
+
+```systemverilog
+bpm_calc = 16'd60000 / count_reg;
+```
+
+단순히 Clock 주기를 낮추거나 Constraint를 추가하기 전에  
+해당 계산 결과가 **실제로 언제 필요한 데이터인지 FSM을 기준으로 다시 분석**했습니다.
+
+```text
+COUNT
+  ↓
+WAIT
+  ↓
+CALC
+  ↓
+COMP
+```
+
+`count_reg`는 지휘 간격 측정이 끝난 뒤 유지되며,  
+BPM 계산 결과는 `WAIT → CALC` 단계를 거쳐 사용됩니다.
+
+따라서 해당 경로의 결과가 반드시  
+**다음 1 Clock 안에 도착해야 하는 구조가 아님을 확인**했습니다.
+
+### 3. Action
+
+실제 데이터 유효 시점에 맞춰  
+`count_reg → reg_bpm_comp` 경로를 **3-cycle Multicycle Path**로 정의했습니다.
+
+```tcl
+set_multicycle_path 3 -setup \
+-from [get_pins {U_GAME_LOGIC/u_speed_calc/count_reg_reg[*]/C}] \
+-to   [get_pins {U_GAME_LOGIC/u_speed_calc/reg_bpm_comp_reg*[*]/D}]
+
+set_multicycle_path 2 -hold \
+-from [get_pins {U_GAME_LOGIC/u_speed_calc/count_reg_reg[*]/C}] \
+-to   [get_pins {U_GAME_LOGIC/u_speed_calc/reg_bpm_comp_reg*[*]/D}]
+```
+
+### 4. Takeaway
+
+Timing Violation을 단순히 Constraint로 숨기는 것이 아니라,
+
+**Timing Report → Critical Path → RTL 연산 → FSM 데이터 유효 시점**
+
+순서로 원인을 확인한 뒤  
+설계 의도에 맞는 Timing Constraint를 적용했습니다.
+
+[**→ View FPGA VGA Conductor Game**](https://github.com/realisshoon/fpga-vga-conductor-game)
+
+</details>
 
 ---
 
@@ -228,16 +314,16 @@ flowchart LR
 &nbsp; `FSM Transition`
 &nbsp; `Corner Case`
 &nbsp; `Data Integrity`
-&nbsp; `Coverage`
+&nbsp; `Coverage Closure`
 
 ---
 
 # 🧩 Additional RTL / Verification Projects
 
-| Project | Core | Result |
+| Project | Core Tech | Result |
 |---|---|---|
 | [**UART / FIFO OOP Verification**](https://github.com/realisshoon/UART_OOP_Verification) | SystemVerilog OOP · Scoreboard | UART/FIFO Unit + Integration Test |
-| [**UART / FIFO / Sensor FPGA System**](https://github.com/realisshoon/UART_FIFO_SENSOR_CLOCK) | UART · FIFO · SR04 · DHT11 | WNS **0.606 ns**, WHS **0.094 ns** |
+| [**UART / FIFO / Sensor FPGA System**](https://github.com/realisshoon/UART_FIFO_SENSOR_CLOCK) | UART · FIFO · SR04 · DHT11 | WNS **0.606 ns** · WHS **0.094 ns** |
 | [**Stopwatch / Watch RTL**](https://github.com/realisshoon/STOPWATCH-WATCH_Verilog-HDL) | FSM · Datapath · FPGA | Basys3 Implementation |
 | [**Jetson Multi-Camera Tracking**](https://github.com/realisshoon/jetson-multicam-re_id-tracking) | Jetson · MQTT · DB | 4-board System Integration |
 
@@ -254,10 +340,10 @@ flowchart LR
 ### SoC / Protocol
 
 ![AXI4-Lite](https://img.shields.io/badge/AXI4--Lite-SoC-D97706?style=flat-square)
+![MMIO](https://img.shields.io/badge/MMIO-Register_Interface-6B7280?style=flat-square)
 ![SPI](https://img.shields.io/badge/SPI-Protocol-6B7280?style=flat-square)
 ![I2C](https://img.shields.io/badge/I2C-Protocol-6B7280?style=flat-square)
 ![UART](https://img.shields.io/badge/UART-Protocol-6B7280?style=flat-square)
-![MMIO](https://img.shields.io/badge/MMIO-Register_Interface-6B7280?style=flat-square)
 
 ### Architecture
 
@@ -275,56 +361,25 @@ flowchart LR
 ![Basys3](https://img.shields.io/badge/Basys3-Artix--7-0F766E?style=flat-square)
 ![Zybo](https://img.shields.io/badge/Zybo_Z7--20-Zynq--7000-0F766E?style=flat-square)
 
-### Programming
+### Programming / Environment
 
-![Python](https://img.shields.io/badge/Python-Development-3776AB?style=flat-square)
+![Python](https://img.shields.io/badge/Python-Golden_Model-3776AB?style=flat-square)
 ![C](https://img.shields.io/badge/C-Embedded-555555?style=flat-square)
 ![Linux](https://img.shields.io/badge/Linux-Development-FCC624?style=flat-square)
 
 ---
 
-# 🎯 Current Focus
-
-<table>
-<tr>
-<td>🧠 <b>INT8 CNN Accelerator</b></td>
-<td>RTL Datapath / Control Architecture</td>
-</tr>
-
-<tr>
-<td>🔬 <b>Bit-exact Verification</b></td>
-<td>Python Golden Model ↔ RTL Simulation</td>
-</tr>
-
-<tr>
-<td>🧪 <b>UVM Verification</b></td>
-<td>Scoreboard / Coverage / Corner Case</td>
-</tr>
-
-<tr>
-<td>🔗 <b>SoC Integration</b></td>
-<td>AXI / DDR / PS-PL Integration</td>
-</tr>
-
-<tr>
-<td>⏱ <b>FPGA Implementation</b></td>
-<td>Timing / Resource / Critical Path</td>
-</tr>
-</table>
-
----
-
 <div align="center">
 
-### 📫 Contact
+## 📫 Contact
 
 **Han SeungHun**
 
-[Portfolio](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a)
+[**Portfolio**](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a)
 &nbsp; · &nbsp;
-[GitHub](https://github.com/realisshoon)
+[**GitHub**](https://github.com/realisshoon)
 &nbsp; · &nbsp;
-[Email](mailto:hsgn21@naver.com)
+[**Email**](mailto:hsgn21@naver.com)
 
 <br>
 
