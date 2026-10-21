@@ -18,7 +18,7 @@
 ![AXI4-Lite](https://img.shields.io/badge/AXI4--Lite-375582?style=flat-square)
 ![FPGA](https://img.shields.io/badge/FPGA-375582?style=flat-square)
 
-[**Web Portfolio**](https://realisshoon.github.io/) · [**요약본 PDF 보기**](https://realisshoon.github.io/downloads/Han_SeungHun_Portfolio_Summary.pdf) · [**Notion**](https://app.notion.com/p/ace61f2920548207b58d01260d14c80a) · [**Email**](mailto:hsgn21@naver.com)
+[**Web Portfolio**](https://realisshoon.github.io/) · [**요약본 PDF 보기**](https://realisshoon.github.io/downloads/Han_SeungHun_Portfolio_Summary.pdf) · [**Notion**](https://app.notion.com/p/3fe61f29205481b29fa5f5446d9c1e0f) · [**Email**](mailto:hsgn21@naver.com)
 
 </td>
 </tr>
@@ -128,19 +128,20 @@ AXI-SPI UVM **32 Pass / 0 Fail**, 정의한 Functional Coverage **100%**. TXDATA
 
 `SystemVerilog` `SPI` `I2C` `UVM`
 
-두 Protocol의 RTL·UVM·보드 통신을 다룬 **3인 팀 프로젝트**입니다.
+두 Protocol의 RTL·UVM·보드 통신을 직접 수행한 **개인 프로젝트**입니다.
 
 **My Contribution**
 
-- **SPI Master / Slave RTL 설계**
-- 송수신 FSM·Shift Register·Clock/CS 제어
+- SPI/I2C Master·Slave RTL 및 송수신 FSM·데이터 경로 설계
+- UVM 환경·Scoreboard·Functional Coverage 구성
+- I2C ACK Sampling 수정과 FPGA 보드 간 통신 검증
 
-**Team Verification Result**
+**Verification Result**
 
 - SPI: **48 Pass / 0 Fail · Functional Coverage 59.59%**
 - I2C: **14 Pass / 0 Fail · Functional Coverage 100%**
 
-I2C RTL과 ACK Sampling 수정은 팀 담당 결과로 구분합니다.
+각 Protocol에서 정의한 Coverpoint 기준의 기존 검증 결과입니다.
 
 [**Repository / Result**](https://github.com/realisshoon/spi_i2c_uvm) · [**SPI RTL**](https://github.com/realisshoon/spi_i2c_uvm/tree/main/spi/rtl)
 
